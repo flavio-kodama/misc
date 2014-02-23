@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+	<head>
+		<script>
+			function control() {
+				var r = {};
+				r.tags = {};
+				r.ftags = {};
+				r.create = function(name) {
+					var obj = null;
+					if(name in r.ftags) {
+						if( r.ftags[ name ].length > 0 ) {
+							obj = r.ftags[ name ].pop();
+						} else {
+							obj = document.createElement(name);
+						}
+					} else {
+						obj = document.createElement(name);
+					}
+					if(!(name in r.tags)) r.tags[name] = [];
+					r.tags[name].push(obj);
+					return obj;
+				}
+				r.commit = function() {
+					for(var x in r.ftags) {
+						(function(tag) {
+							for(var i = 0; i < r.ftags[tag].length;i++) {
+									var item = r.ftags[tag][i];
+									item.parentNode.removeChild(item);
+							}
+						})(x);
+					}
+					for(var x in r.tags) {
+						(function(name) {
+							if(!(name in r.ftags)) r.ftags[name] = [];
+							while(r.tags[name].length>0) {
+								var item = r.tags[name].pop();
+								r.ftags[name].push(item);
+							}
+							delete r.tags[name];
+						})(x);
+					}
+					for(var x in r.ftags) {
+						console.log(">> ",x,":",r.ftags[x].length)
+					}
+				}
+				return r;
+			}
+			window.addEventListener("load",function() {
+				console.log("load");
+				var table1 = control();
+				
+				var count = 0;
+				var body = document.getElementsByTagName("body")[0];
+				window.addEventListener("click",function() {
+					console.log("click");
+				
+					var table = table1.create("table");
+					var tr = table1.create("tr");
+					var td = table1.create("td");
+					td.innerHTML = "teste " + count;
+					count++;
+					tr.appendChild(td);
+					table.appendChild(tr);
+					body.appendChild(table);
+					table1.commit();
+				});
+			});
+		</script>
+	</head>
+	<body>
+		
+	</body>
+</html>
